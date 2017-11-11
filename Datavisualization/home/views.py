@@ -22,5 +22,6 @@ def charts(request):
 
 	print(case_list)
 
+	
 
-	return render(request, 'index.html', {"case_list":case_list})
+	return render(request, 'index.html', {"case_list":case_list,"cases":obj})
