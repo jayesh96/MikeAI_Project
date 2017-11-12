@@ -21,3 +21,14 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', charts, name='charts')
 ]
+
+
+# <script type="application/json" id="mis">
+#   { "nodes": [{"value": "Myriel", "name": "Myriel", "group": 1 },{ "name": "OldMan", "group": 2 }, { "name": "Labarre", "group": 3 }, { "name": "Valjean", "group": 4 }, { "name": "Marguerite", "group": 5 }, { "name":
+#   "Mme.deR", "group": 6 }, { "name": "Isabeau", "group": 7 }, { "name": "Gervais", "group": 8 }], "links": [{ "source": 1, "target": 2 ,"value": 5 }, { "source": 1, "target": 0, "value": 8 }, { "source": 0, "target": 2, "value": 8 }] }
+
+# </script>
+
+
+# var mis = document.getElementById('mis').innerHTML;
+# graph = JSON.parse(mis);

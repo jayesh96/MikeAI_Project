@@ -17,7 +17,7 @@ class Case(models.Model):
 	title = models.CharField(max_length=2000, default=None, null=False,blank=False)
 	case_ref_no = models.CharField(max_length=200, default=None, null=False,blank=False)
 	mentioned_in = models.IntegerField(default=0,help_text="No of times the case is mentioned in other cases")
-	mentions = models.CharField(default="",max_length=200, null=False,blank=False,help_text="String Seperated ids of cases mentioned in this case")
+	mentions = models.ManyToManyField("self", blank=True)
 	body = models.TextField(help_text="About the Case")
 	doj = models.DateField(auto_now=False, auto_now_add=False)
 

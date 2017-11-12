@@ -1,9 +1,7 @@
 {% load staticfiles %}
-<html lang="en">
-
-  <head>
-
-    <meta charset="utf-8">
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -11,10 +9,26 @@
     <title>Heroic Features - Start Bootstrap Template</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    
 
-    <!-- Custom styles for this template -->
-    <link href="{% static 'css/heroic-features.css' %}" rel="stylesheet">
+<style type="text/css">
+    circle.node {
+    cursor: pointer;
+    stroke: #34495e;
+    stroke-width: 2px;
+    box-sizing: border-box;
+    stroke-location: inside;
+}
+
+line.link {
+    fill: none;
+    stroke: #34495e;
+    stroke-width: 1.5px;
+}
+
+
+</style>
+
 
 <style>
 
@@ -64,8 +78,13 @@
     }
     </style>
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+
+<link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/heroic-features.css' %}" rel="stylesheet">
 </head>
+
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -91,13 +110,13 @@
     </nav>
 
 
-   <div class="container">
-   	
+     <div class="container">
+    
 
-	<div class="row text-center">
+    <div class="row text-center">
 
-		<p>
-		{% for obj in cases %}
+        <p>
+        {% for obj in cases %}
         <div class="col-lg-12 col-md-6 mb-4">
           <div class="card">
             <div class="card-body">
@@ -106,6 +125,7 @@
 
             </div>
             <div class="card-footer">
+                Total no of times the case mentioned are : {% for i in obj.mentions.all %} {{ i }} {% endfor %}
               <a href="#" class="btn btn-primary" style="float: right">Find Out More!</a>
             </div>
           </div>
@@ -117,131 +137,232 @@
       </div>
 
       <div class="jumbotron my-4">
-<div id="#ref-graph" class="chart"></div>
 
+<div id="#ref-graph" class="chart">
+        
+        <div class="abc">
+            <button class='btn btn-alert' onclick="d3.select('.abc').select('svg').remove()">X</button>
+            <p>Press X To hide the network </p>
+            
+        </div>
+    </div>
 </div>
 </div>
 <footer class="py-5 bg-dark">
       <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2017</p>
+        <p class="m-0 text-center text-white">FOOTER</p>
       </div>
       <!-- /.container -->
     </footer>
 
-
-  <script type="application/json" id="mis">
-
-  { "nodes": [{"value": "Myriel", "name": "Myriel", "group": 1 },{ "name": "OldMan", "group": 2 }, { "name": "Labarre", "group": 3 }], "links": [{ "source": 1, "target": 2 ,"value": 5 }, { "source": 1, "target": 0, "value": 8 }] }
+    
 
 
 
-</script>
+<script src="http://d3js.org/d3.v2.min.js?2.9.6"></script>
+    <script>
+        
+        var words = [
+    {
+        "group":"n",
+        "word":"main node",
+        "children":[
+            {
+                "group":"n",
+                "name":"sub node 1"
+            },
+            {
+                "group":"n",
+                "name":"sub node 2"
+            },
+            {
+                "group":"n",
+                "name":"sub node 3"
+            },
+            {
+                "group":"v",
+                "name":"sub node 4"
+            },
+            {
+                "group":"s",
+                "name":"sub node 5"
+            },
+            {
+                "group":"s",
+                "name":"sub node 6"
+            },
+            {
+                "group":"s",
+                "name":"sub node 7"
+            },
+            {
+                "group":"s",
+                "name":"sub node 8"
+            },
+            {
+                "group":"s",
+                "name":"sub node 9"
+            },
+            {
+                "group":"s",
+                "name":"sub node 10"
+            },
+            {
+                "group":"s",
+                "name":"sub node 11"
+            },
+            {
+                "group":"r",
+                "name":"sub node 12",
+                
+            }
+        ]
+    }
+]
 
-<script type="text/javascript">
-  function mynetwork()
-  {
-  	
-  	
+    </script>
 
+    <script type="text/javascript">
 
+        function network()
+        {
+        var w = 600,
+    h = 600,
+    radius = 10,
+    node,
+    link,
+    root;
 
-                                    //Constants for the SVG
-var width = 500,
-  height = 500;
-
-//Set up the colour scale
-var color = d3.scale.category20();
-
-//Set up the force layout
 var force = d3.layout.force()
-  .charge(-120)
-  .linkDistance(80)
-  .size([width, height]);
+    .on("tick", tick)
+    .charge(function(d) { return -500; })
+    .linkDistance(function(d) { return d.target._children ? 100 : 50; })
+    .size([w, h - 160]);
 
-//Append a SVG to the body of the html page. Assign this SVG as an object to svg
-var svg = d3.select(".chart").append("svg")
-  .attr("width", width)
-  .attr("height", height);
+var svg = d3.select(".abc").append("svg")
+    .attr("width", w)
+    .attr("height", h);
 
+root = words[0]; //set root node
+root.fixed = true;
+root.x = w / 2;
+root.y = h / 2 - 80;
+update();
 
+function update() {
+    var nodes = flatten(root),
+    links = d3.layout.tree().links(nodes);
 
-//Read the data from the mis element 
+    // Restart the force layout.
+    force
+        .nodes(nodes)
+        .links(links)
+        .start();
 
-var mis = document.getElementById('mis').innerHTML;
-graph = JSON.parse(mis);
+    // Update the links…
+    link = svg.selectAll(".link")
+        .data(links);
 
-//Creates the graph data structure out of the json data
-force.nodes(graph.nodes)
-  .links(graph.links)
-  .start();
+    // Enter any new links.
+    link.enter().insert("svg:line", ".node")
+        .attr("class", "link")
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
 
-//Create all the line svgs but without locations yet
-var link = svg.selectAll(".link")
-  .data(graph.links)
-  .enter().append("line")
-  .attr("class", "link")
-  .style("marker-end", "url(#suit)") //Added 
-;
+    // Exit any old links.
+    link.exit().remove();
 
-//Do the same with the circles for the nodes - no 
-var node = svg.selectAll(".node")
-  .data(graph.nodes)
-  .enter().append("circle")
-  .attr("class", "node")
-  .attr("r", 8)
-  .on('click', function (d, i) {
-          console.log(d.name)
-      })
-  .style("fill", function(d) {
-    return color(d.group);
-  })
-  .call(force.drag);
+    // Update the nodes…
+    node = svg.selectAll("circle.node")
+        .data(nodes)
+        .style("fill", color);
 
+    node.transition()
+        .attr("r", radius);
 
-//Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements
-force.on("tick", function() {
-  link.attr("x1", function(d) {
-      return d.source.x;
-    })
-    .attr("y1", function(d) {
-      return d.source.y;
-    })
-    .attr("x2", function(d) {
-      return d.target.x;
-    })
-    .attr("y2", function(d) {
-      return d.target.y;
-    });
+    node.append("title")
+        .text(function(d) { return d.name; });
 
-  node.attr("cx", function(d) {
-      return d.x;
-    })
-    .attr("cy", function(d) {
-      return d.y;
-    });
-});
+    // Enter any new nodes.
+    node.enter().append("svg:circle")
+        .attr("class", "node")
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; })
+        .attr("r", radius)
+        .style("fill", color)
+        .on("click", click)
+        .call(force.drag);
 
-//---Insert-------
-svg.append("defs").selectAll("marker")
-  .data(["suit", "licensing", "resolved"])
-  .enter().append("marker")
-  .attr("id", function(d) {
-    return d;
-  })
-  .attr("viewBox", "0 -5 10 10")
-  .attr("refX", 25)
-  .attr("refY", 0)
-  .attr("markerWidth", 6)
-  .attr("markerHeight", 6)
-  .attr("orient", "auto")
-  .append("path")
-  .attr("d", "M0,-5L10,0L0,5 L10,0 L0, -5")
-  .style("stroke", "#4679BD")
-  .style("opacity", "0.6");
-//---End Insert---
-  }
-</script>
+    // Exit any old nodes.
+    node.exit().remove();
+}
 
+function tick() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; });
+}
+
+// Color leaf nodes orange, and packages white or blue.
+function color(d) {
+    if(d._children){
+        return "#95a5a6";
+    }else{
+        switch(d.group) {
+            case 'r': //adverb
+                return "#e74c3c";
+                break;
+            case 'n': //noun
+                return "#3498db";
+                break;
+            case 'v': //verb
+                return "#2ecc71";
+                break;
+            case 's': //adjective
+                return "#e78229";
+                break;
+            default:
+                return "#9b59b6";
+        }
+    }
+}
+
+// Toggle children on click.
+function click(d) {
+
+    if (d.children) {
+        d._children = d.children;
+        d.children = null;
+    } else {
+        d.children = d._children;
+        d._children = null;
+    }
+    update();
+}
+
+// Returns a list of all nodes under the root.
+function flatten(root) {
+    var nodes = [], i = 0;
+
+    function recurse(node) {
+        if (node.children) node.size = node.children.reduce(function(p, v) { return p + recurse(v); }, 0);
+        if (!node.id) node.id = ++i;
+        nodes.push(node);
+        return node.size;
+    }
+
+    root.size = recurse(root);
+    return nodes;
+}
+
+}
+    </script>
 
 <script>
 var height = 400;
@@ -256,6 +377,7 @@ for(var i = 0; i < {{ case_list|safe }}.length; i++) {
         y: {{ case_list|safe}}[i]['y'],
         c: Math.round(Math.random() * 5),
         size: {{ case_list|safe}}[i]['r'],
+        id:{{ case_list|safe}}[i]['id'],
         });
 }
 
@@ -320,20 +442,21 @@ svg.selectAll("circle")
                               .attr("cy", height / 2)
                               .attr("opacity", function (d) { return opacity(d.size); })
                               .attr("r", function (d) { return scale(d.size); })
+                              .attr("value",function (d) { return d.id; })
                               .style("fill", function (d) { return color(d.c); })
                               .on('mouseover', function (d, i) {
-                                  fade(d.c, .1);
+                                  // fade(d.c, .1);
                                   
 
                               })
                               .on('click', function (d, i) {
-                                
-                                mynetwork()
+
+                                network();
                                 
                               })
 
                               .on('mouseout', function (d, i) {
-                                 fadeOut();
+
                              })
                              .transition()
                             .delay(function (d, i) { return x(d.x) - y(d.y); })
@@ -343,24 +466,25 @@ svg.selectAll("circle")
                             .ease("bounce");
                              
                              
-function fade(c, opacity) {
-                              svg.selectAll("circle")
-                                  .filter(function (d) {
-                                      return d.c != c;
-                                  })
-                                .transition()
-                                 .style("opacity", opacity);
-                          }
+// function fade(c, opacity) {
+//                               svg.selectAll("circle")
+//                                   .filter(function (d) {
 
-                          function fadeOut() {
-                              svg.selectAll("circle")
-                              .transition()
-                                 .style("opacity", function (d) { opacity(d.size); });
-                          }
+//                                       return d.c != c;
+//                                   })
+//                                 .transition()
+//                                  .style("opacity", opacity);
+//                           }
+
+//                           function fadeOut() {
+//                               svg.selectAll("circle")
+//                               .transition()
+//                                  .style("opacity", function (d) { opacity(d.size); });
+//                           }
 </script>
 
 
 <script src="{% static 'jquery/jquery.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
 </body>
-</html>

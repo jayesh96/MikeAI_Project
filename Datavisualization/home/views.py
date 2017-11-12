@@ -15,13 +15,12 @@ def charts(request):
 		case = {
 			'x':int(str(i.doj).split("-")[0]),
 			'y':int(str(i.doj).split("-")[1]),
-			'r':len(i.mentions.split(","))
+			'r':int(i.mentions.all().count()),
+			'id':str(i.id)
 		}
 		print case
 		case_list.append(case)
 
-	print(case_list)
 
-	
 
 	return render(request, 'index.html', {"case_list":case_list,"cases":obj})
